@@ -22,6 +22,9 @@ namespace FeatureService.Services
 
         public async Task<Feature> CreateFeature(Feature feature)
         {
+            if (InMemoryDb.Any(f => feature.Id == f.Id))
+                return null;
+
             feature.Created = DateTime.UtcNow;
             InMemoryDb.Add(feature);
             return feature;
@@ -56,6 +59,8 @@ namespace FeatureService.Services
             if (obtainedFeature == null)
                 return null;
             
+            feature.Created = obtainedFeature.Created;
+
             InMemoryDb.RemoveAll(f => f.Id == featureId);
             InMemoryDb.Add(feature);
 

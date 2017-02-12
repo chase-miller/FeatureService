@@ -1,4 +1,6 @@
+using System;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using FeatureService.Models.Api;
 using FeatureService.Models.Domain;
@@ -42,13 +44,23 @@ namespace FeatureService.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]FeatureRequest feature)
         {
+            if (!IsValidTimeSpan(feature.Lifetime))
+                return BadRequest("lifetime could not be parsed");
+
             var newFeature = await _featureService.CreateFeature((Feature)feature);
+
+            if (newFeature == null)
+                return StatusCode((int)HttpStatusCode.Conflict);
+
             return CreatedAtRoute("GetFeature", new { FeatureId = newFeature.Id }, (FeatureResponse)newFeature);
         }
 
         [HttpPut("{featureId}")]
         public async Task<IActionResult> Put(string featureId, [FromBody]FeatureRequest feature)
         {
+            if (!IsValidTimeSpan(feature.Lifetime))
+                return BadRequest("lifetime could not be parsed");
+
             var response = await _featureService.UpdateFeature(featureId, (Feature)feature);
 
             if (response == null)
@@ -66,6 +78,15 @@ namespace FeatureService.Controllers
                 return NotFound();
 
             return Ok();
+        }
+
+        private bool IsValidTimeSpan(string timespanAsString)
+        {
+            if (string.IsNullOrWhiteSpace(timespanAsString))
+                return true;
+
+            TimeSpan timespan = default(TimeSpan);
+            return TimeSpan.TryParse(timespanAsString, out timespan);
         }
     }
 }

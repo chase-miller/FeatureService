@@ -11,6 +11,8 @@ namespace FeatureService.Models.Api
         public TimeSpan? Lifetime {get; set;}
         public DateTime? Expiration { get; set;}
 
+        public bool? IsExpired { get; set;}
+
         public static explicit operator FeatureResponse(Feature feature)
         {
             return new FeatureResponse
@@ -19,7 +21,8 @@ namespace FeatureService.Models.Api
                 Enabled = feature.Enabled,
                 Lifetime = feature.Lifetime,
                 Created = feature.Created,
-                Expiration = feature.Expiration
+                Expiration = feature.Expiration,
+                IsExpired = feature.IsExpired
             };
         }
 

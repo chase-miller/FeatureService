@@ -7,17 +7,7 @@ namespace FeatureService.Models.Api
     {
         public string Id {get; set;}
         public bool Enabled {get; set;}
-        public TimeSpan? Lifetime {get; set;}
-
-        public static explicit operator FeatureRequest(Feature feature)
-        {
-            return new FeatureRequest
-            {
-                Id = feature.Id,
-                Enabled = feature.Enabled,
-                Lifetime = feature.Lifetime
-            };
-        }
+        public string Lifetime {get; set;}
 
         public static explicit operator Feature(FeatureRequest feature)
         {
@@ -25,7 +15,9 @@ namespace FeatureService.Models.Api
             {
                 Id = feature.Id,
                 Enabled = feature.Enabled,
-                Lifetime = feature.Lifetime
+                Lifetime = !string.IsNullOrWhiteSpace(feature.Lifetime) 
+                    ? (TimeSpan.Parse(feature.Lifetime) as TimeSpan?)
+                    : null
             };
         }
     }
