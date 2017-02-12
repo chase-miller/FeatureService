@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using FeatureService.Models.Api;
+using FeatureService.Models.Domain;
 
 namespace FeatureService.Services
 {
@@ -22,6 +22,7 @@ namespace FeatureService.Services
 
         public async Task<Feature> CreateFeature(Feature feature)
         {
+            feature.Created = DateTime.UtcNow;
             InMemoryDb.Add(feature);
             return feature;
         }

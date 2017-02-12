@@ -1,8 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FeatureService.Models.Api;
+using FeatureService.Models.Domain;
 using FeatureService.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,7 +23,17 @@ namespace FeatureService.Controllers
         public async Task<IActionResult> GetAll()
         {
             var features = await _featureService.GetAllFeatures();
-            return Ok(features);
+
+            var responses = features.Select(f => new FeatureResponse
+            {
+                Id = f.Id,
+                Enabled = f.Enabled,
+                Created = f.Created,
+                Lifetime = f.Lifetime,
+                Expiration = f.Expiration
+            });
+
+            return Ok(responses);
         }
 
         // GET api/values/5
@@ -32,21 +41,65 @@ namespace FeatureService.Controllers
         public async Task<IActionResult> Get(string featureId)
         {
             var feature = await _featureService.GetFeature(featureId);
-            return Ok(feature);
+
+            var response = new FeatureResponse
+            {
+                Id = feature.Id,
+                Enabled = feature.Enabled,
+                Created = feature.Created,
+                Lifetime = feature.Lifetime,
+                Expiration = feature.Expiration
+            };
+
+            return Ok(response);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]Feature feature)
+        public async Task<IActionResult> Post([FromBody]FeatureRequest feature)
         {
-            var newFeature = await _featureService.CreateFeature(feature);
-            return CreatedAtRoute("Get", newFeature);
+            var domainFeature = new Models.Domain.Feature
+            {
+                Id = feature.Id,
+                Enabled = feature.Enabled,
+                Lifetime = feature.Lifetime
+            };
+
+            var newFeature = await _featureService.CreateFeature(domainFeature);
+
+            var response = new FeatureResponse
+            {
+                Id = newFeature.Id,
+                Enabled = newFeature.Enabled,
+                Created = newFeature.Created,
+                Lifetime = newFeature.Lifetime,
+                Expiration = newFeature.Expiration
+            };
+
+            return CreatedAtRoute("Get", response);
         }
 
         [HttpPut("{featureId}")]
-        public async Task<IActionResult> Put(string featureId, [FromBody]Feature feature)
+        public async Task<IActionResult> Put(string featureId, [FromBody]FeatureRequest feature)
         {
-            var updatedFeature = await _featureService.UpdateFeature(featureId, feature);
-            return Ok(updatedFeature);
+            var domainFeature = new Models.Domain.Feature
+            {
+                Id = feature.Id,
+                Enabled = feature.Enabled,
+                Lifetime = feature.Lifetime
+            };
+
+            var updatedFeature = await _featureService.UpdateFeature(featureId, domainFeature);
+
+            var response = new FeatureResponse
+            {
+                Id = updatedFeature.Id,
+                Enabled = updatedFeature.Enabled,
+                Created = updatedFeature.Created,
+                Lifetime = updatedFeature.Lifetime,
+                Expiration = updatedFeature.Expiration
+            };
+
+            return Ok(response);
         }
 
         [HttpDelete("{featureId}")]
