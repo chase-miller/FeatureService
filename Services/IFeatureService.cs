@@ -13,7 +13,7 @@ namespace FeatureService.Services
         Task<IEnumerable<Feature>> GetAllFeatures();
         Task<Feature> CreateFeature(Feature feature);
         Task<Feature> UpdateFeature(string featureId, Feature feature);
-        Task DeleteFeature(string featureId);
+        Task<bool> DeleteFeature(string featureId);
     }
 
     public class InMemoryFeatureService : IFeatureService
@@ -27,9 +27,16 @@ namespace FeatureService.Services
             return feature;
         }
 
-        public async Task DeleteFeature(string featureId)
+        public async Task<bool> DeleteFeature(string featureId)
         {
-            InMemoryDb.RemoveAll(f => f.Id == featureId);
+            var features = InMemoryDb.Where(f => f.Id == featureId);
+
+            if (!features.Any())
+                return false;
+
+            InMemoryDb.RemoveAll(f => features.Contains(f));
+
+            return true;
         }
 
         public async Task<IEnumerable<Feature>> GetAllFeatures()
@@ -47,7 +54,7 @@ namespace FeatureService.Services
             var obtainedFeature = InMemoryDb.SingleOrDefault(f => f.Id == featureId);
 
             if (obtainedFeature == null)
-                throw new Exception("could not find feature");
+                return null;
             
             InMemoryDb.RemoveAll(f => f.Id == featureId);
             InMemoryDb.Add(feature);

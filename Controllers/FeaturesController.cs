@@ -32,6 +32,10 @@ namespace FeatureService.Controllers
         public async Task<IActionResult> Get(string featureId)
         {
             var feature = await _featureService.GetFeature(featureId);
+
+            if (feature == null)
+                return NotFound();
+
             return Ok((FeatureResponse)feature);
         }
 
@@ -46,13 +50,21 @@ namespace FeatureService.Controllers
         public async Task<IActionResult> Put(string featureId, [FromBody]FeatureRequest feature)
         {
             var response = await _featureService.UpdateFeature(featureId, (Feature)feature);
+
+            if (response == null)
+                return NotFound();
+
             return Ok((FeatureResponse)response);
         }
 
         [HttpDelete("{featureId}")]
         public async Task<IActionResult> Delete(string featureId)
         {
-            await _featureService.DeleteFeature(featureId);
+            var idFound = await _featureService.DeleteFeature(featureId);
+
+            if (idFound == false)
+                return NotFound();
+
             return Ok();
         }
     }
