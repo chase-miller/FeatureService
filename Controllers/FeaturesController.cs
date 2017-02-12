@@ -23,16 +23,7 @@ namespace FeatureService.Controllers
         public async Task<IActionResult> GetAll()
         {
             var features = await _featureService.GetAllFeatures();
-
-            var responses = features.Select(f => new FeatureResponse
-            {
-                Id = f.Id,
-                Enabled = f.Enabled,
-                Created = f.Created,
-                Lifetime = f.Lifetime,
-                Expiration = f.Expiration
-            });
-
+            var responses = features.Select(f => (FeatureResponse)f);
             return Ok(responses);
         }
 
@@ -41,65 +32,21 @@ namespace FeatureService.Controllers
         public async Task<IActionResult> Get(string featureId)
         {
             var feature = await _featureService.GetFeature(featureId);
-
-            var response = new FeatureResponse
-            {
-                Id = feature.Id,
-                Enabled = feature.Enabled,
-                Created = feature.Created,
-                Lifetime = feature.Lifetime,
-                Expiration = feature.Expiration
-            };
-
-            return Ok(response);
+            return Ok((FeatureResponse)feature);
         }
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]FeatureRequest feature)
         {
-            var domainFeature = new Models.Domain.Feature
-            {
-                Id = feature.Id,
-                Enabled = feature.Enabled,
-                Lifetime = feature.Lifetime
-            };
-
-            var newFeature = await _featureService.CreateFeature(domainFeature);
-
-            var response = new FeatureResponse
-            {
-                Id = newFeature.Id,
-                Enabled = newFeature.Enabled,
-                Created = newFeature.Created,
-                Lifetime = newFeature.Lifetime,
-                Expiration = newFeature.Expiration
-            };
-
-            return CreatedAtRoute("GetFeature", new { FeatureId = response.Id }, response);
+            var newFeature = await _featureService.CreateFeature((Feature)feature);
+            return CreatedAtRoute("GetFeature", new { FeatureId = newFeature.Id }, (FeatureResponse)newFeature);
         }
 
         [HttpPut("{featureId}")]
         public async Task<IActionResult> Put(string featureId, [FromBody]FeatureRequest feature)
         {
-            var domainFeature = new Models.Domain.Feature
-            {
-                Id = feature.Id,
-                Enabled = feature.Enabled,
-                Lifetime = feature.Lifetime
-            };
-
-            var updatedFeature = await _featureService.UpdateFeature(featureId, domainFeature);
-
-            var response = new FeatureResponse
-            {
-                Id = updatedFeature.Id,
-                Enabled = updatedFeature.Enabled,
-                Created = updatedFeature.Created,
-                Lifetime = updatedFeature.Lifetime,
-                Expiration = updatedFeature.Expiration
-            };
-
-            return Ok(response);
+            var response = await _featureService.UpdateFeature(featureId, (Feature)feature);
+            return Ok((FeatureResponse)response);
         }
 
         [HttpDelete("{featureId}")]
