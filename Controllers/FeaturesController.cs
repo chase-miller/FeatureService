@@ -37,7 +37,7 @@ namespace FeatureService.Controllers
         }
 
         // GET api/values/5
-        [HttpGet("{featureId}")]
+        [HttpGet("{featureId}", Name = "GetFeature")]
         public async Task<IActionResult> Get(string featureId)
         {
             var feature = await _featureService.GetFeature(featureId);
@@ -75,7 +75,7 @@ namespace FeatureService.Controllers
                 Expiration = newFeature.Expiration
             };
 
-            return CreatedAtRoute("Get", response);
+            return CreatedAtRoute("GetFeature", new { FeatureId = response.Id }, response);
         }
 
         [HttpPut("{featureId}")]
