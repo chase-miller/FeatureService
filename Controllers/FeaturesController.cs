@@ -14,7 +14,7 @@ namespace FeatureService.Controllers
     [Route("api/[controller]")]
     public class FeaturesController : Controller
     {
-        private IFeatureService _featureService;
+        private readonly IFeatureService _featureService;
 
         public FeaturesController(IFeatureService featureService)
         {

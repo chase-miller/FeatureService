@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using FeatureService.Models.Domain;
+using FeatureService.Persistence;
 
 namespace FeatureService.Services
 {
@@ -16,55 +17,38 @@ namespace FeatureService.Services
         Task<bool> DeleteFeature(string featureId);
     }
 
-    public class InMemoryFeatureService : IFeatureService
+    public class FeatureServiceImpl : IFeatureService
     {
-        public static List<Feature> InMemoryDb { get; private set; } = new List<Feature>();
+        private readonly IFeatureRepo _featureRepo;
 
-        public async Task<Feature> CreateFeature(Feature feature)
+        public FeatureServiceImpl(IFeatureRepo featureRepo)
         {
-            if (InMemoryDb.Any(f => feature.Id == f.Id))
-                return null;
-
-            feature.Created = DateTime.UtcNow;
-            InMemoryDb.Add(feature);
-            return feature;
+            _featureRepo = featureRepo;
         }
 
-        public async Task<bool> DeleteFeature(string featureId)
+        public Task<Feature> CreateFeature(Feature feature)
         {
-            var features = InMemoryDb.Where(f => f.Id == featureId);
-
-            if (!features.Any())
-                return false;
-
-            InMemoryDb.RemoveAll(f => features.Contains(f));
-
-            return true;
+            return _featureRepo.CreateFeature(feature);
         }
 
-        public async Task<IEnumerable<Feature>> GetAllFeatures()
+        public Task<bool> DeleteFeature(string featureId)
         {
-            return InMemoryDb;
+            return _featureRepo.DeleteFeature(featureId);
         }
 
-        public async Task<Feature> GetFeature(string featureId)
+        public Task<IEnumerable<Feature>> GetAllFeatures()
         {
-            return InMemoryDb.SingleOrDefault(f => f.Id == featureId);
+            return _featureRepo.GetAllFeatures();
         }
 
-        public async Task<Feature> UpdateFeature(string featureId, Feature feature)
+        public Task<Feature> GetFeature(string featureId)
         {
-            var obtainedFeature = InMemoryDb.SingleOrDefault(f => f.Id == featureId);
+            return _featureRepo.GetFeature(featureId);
+        }
 
-            if (obtainedFeature == null)
-                return null;
-            
-            feature.Created = obtainedFeature.Created;
-
-            InMemoryDb.RemoveAll(f => f.Id == featureId);
-            InMemoryDb.Add(feature);
-
-            return feature;
+        public Task<Feature> UpdateFeature(string featureId, Feature feature)
+        {
+            return _featureRepo.UpdateFeature(featureId, feature);
         }
     }
 }
