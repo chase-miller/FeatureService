@@ -25,16 +25,5 @@ namespace FeatureService.Models.Api
                 IsExpired = feature.IsExpired
             };
         }
-
-        public static explicit operator Feature(FeatureResponse feature)
-        {
-            return new Feature
-            {
-                Id = feature.Id,
-                Enabled = feature.Enabled,
-                Lifetime = feature.Lifetime,
-                Created = feature.Created
-            };
-        }
     }
 }
